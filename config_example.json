@@ -1,0 +1,49 @@
+{
+    "general":{
+        "baseURL":"https://api.weglide.org/v1/flight",
+        "daysback":5,
+        "apptoken":"xxx"
+    },
+
+    "sources": [
+        {
+            "name":"Langenthal",
+            "source_id":1,
+            "filtercriteria":
+                {
+                    "airport_id_in": "161494"
+                }
+        },
+        {
+            "name":"Schweiz mehr als 900km",
+            "source_id":5,
+            "filtercriteria":
+            {
+                "country_id_in":"CH",
+                "distance_gt":900
+            }
+        },
+
+        {
+            "name":"Weltweit mehr als 1200km",
+            "source_id":6,
+            "filtercriteria":
+            {
+                "distance_gt":1200
+            }
+        }
+
+    ],
+
+    "destinations": [
+        {
+            "name":"Testgruppe",
+            "type":"group",
+            "pushover_id":"xxx",
+            "source_ids":[1, 2]
+
+        }
+
+    ]
+
+}
