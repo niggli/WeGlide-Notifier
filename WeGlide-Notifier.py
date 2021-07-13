@@ -9,6 +9,7 @@
 import requests
 import json
 import datetime
+import subprocess
 
 def printToLogfile(logstring) :
     dateObjectNow = datetime.datetime.now()
@@ -50,9 +51,36 @@ for source in config["sources"] :
             #Build message for notification
             flightURL = "https://weglide.org/flight/" + str(flight["id"])
             flightDate = (datetime.datetime.strptime(flight["scoring_date"], "%Y-%m-%d")).strftime("%d.%m.")         
-            notificationMessage = flight["user"]["name"] + " hat einen Flug hochgeladen: <a href="
+            notificationMessage = flight["user"]["name"] + " hat einen Flug auf WeGlide hochgeladen: <a href="
             notificationMessage = notificationMessage + flightURL + ">"
             notificationMessage = notificationMessage + str(flight["contest"]["distance"]) + "km am " + flightDate + " aus " + flight["takeoff_airport"]["name"] + "</a>"
+
+            #Correct or add flight in Vereinsflieger
+            if "Weglide2Vereinsflieger_URL" in source :
+                printToLogfile("Weglide2Vereinsflieger URL configured")
+
+                #Get flight detail to read registration
+                resp_detail = requests.get(config["general"]["detailsURL"]+ str(flight["id"]))
+                datastore_detail = resp_detail.json()
+                print(datastore_detail)
+
+                #Build payload for Weglide2Vereinsflieger call
+                callsign = datastore_detail["registration"]
+                airfield = flight["takeoff_airport"]["name"]
+                starttime = flight["takeoff_time"]
+                landingtime = flight["landing_time"]
+                pilotname = flight["user"]["name"]
+                url = source["Weglide2Vereinsflieger_URL"]
+
+                print(callsign)
+                print(airfield)
+                print(starttime)
+                print(landingtime)
+                print(pilotname)
+                print(url)
+
+                subprocess.call(["php", "-f", url, starttime, landingtime, pilotname, airfield, callsign])
+
 
             #Send notifications
             #Loop through all destinations
