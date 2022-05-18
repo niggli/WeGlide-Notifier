@@ -10,6 +10,7 @@ import requests
 import json
 import datetime
 import subprocess
+import sys
 
 def printToLogfile(logstring) :
     dateObjectNow = datetime.datetime.now()
@@ -25,6 +26,8 @@ try :
     with open('knownflights.json') as flightsFile:
         knownFlights = json.load(flightsFile)
 except FileNotFoundError :
+    printToLogfile("Error loading file with known flights")
+    sys.exit()
     knownFlights = []
 
 # Loop through all defined sources
@@ -46,7 +49,7 @@ for source in config["sources"] :
     #Check if new flights, loop through them
     for flight in datastore :
         if flight["id"] not in knownFlights:
-            print (flight["id"])
+            printToLogfile ("New flight id:" + str(flight["id"]))
 
             #Build message for notification
             flightURL = "https://weglide.org/flight/" + str(flight["id"])
@@ -62,7 +65,7 @@ for source in config["sources"] :
                 #Get flight detail to read registration
                 resp_detail = requests.get(config["general"]["detailsURL"]+ str(flight["id"]))
                 datastore_detail = resp_detail.json()
-                print(datastore_detail)
+                #print(datastore_detail)
 
                 #Build payload for Weglide2Vereinsflieger call
                 callsign = datastore_detail["registration"]
@@ -95,7 +98,7 @@ for source in config["sources"] :
                         "url" : flightURL,
                         "message": notificationMessage
                     })
-                    #print(r.text)
+                    print(r.text)
 
             # Store in list of known flights
             knownFlights.append(flight["id"])
